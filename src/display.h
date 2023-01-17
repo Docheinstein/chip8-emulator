@@ -1,19 +1,13 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include "globals.h"
-
 class Display {
 public:
     virtual ~Display() = default;
-    bool get(unsigned int x, unsigned int y);
-    void set(unsigned int x, unsigned int y, bool on);
-
-    void clear();
+    [[nodiscard]] virtual bool get(unsigned int x, unsigned int y) const = 0;
+    virtual void set(unsigned int x, unsigned int y, bool on) = 0;
+    virtual void clear() = 0;
     virtual void refresh() = 0;
-
-private:
-    bool display[CHIP8_DISPLAY_WIDTH * CHIP8_DISPLAY_HEIGHT] {};
 };
 
 #endif // DISPLAY_H

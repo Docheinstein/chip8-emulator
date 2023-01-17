@@ -2,33 +2,32 @@
 #define CHIP8_H
 
 #include <string>
-#include "memory.h"
-#include "chip8factory.h"
+#include <memory>
 #include "cpu.h"
-#include "config.h"
-#include "glwindow.h"
-#include "gldisplay.h"
-#include "glkeypad.h"
-#include "powersupply.h"
 #include "speaker.h"
 #include "eventlooper.h"
 
 class Chip8 {
 public:
-    explicit Chip8(const Chip8Factory &factory, const Config &cfg);
+    friend class Chip8Builder;
 
-    bool load(const std::string &filename);
+    bool load(const std::string &rom);
     void run();
+    void reset();
 
 private:
-    Memory memory;
+    explicit Chip8(int instructions_per_second);
+
+    std::string rom;
+
+    std::unique_ptr<CPU> cpu;
+    std::unique_ptr<Memory> memory;
     std::unique_ptr<Display> display;
     std::unique_ptr<Keypad> keypad;
-    std::unique_ptr<PowerSupply> power;
     std::unique_ptr<Speaker> speaker;
     std::unique_ptr<EventLooper> event_looper;
-    CPU cpu;
 
-    Config cfg;
+    int instructions_per_second;
 };
+
 #endif // CHIP8_H

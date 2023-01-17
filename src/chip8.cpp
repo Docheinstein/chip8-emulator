@@ -3,29 +3,35 @@
 #include <iostream>
 #include "debug.h"
 #include "scheduler.h"
+#include "flags.h"
 
-
-Chip8::Chip8(const Chip8Factory &factory, const Config &cfg) :
-    display(factory.make_display(cfg.scaling)),
-    keypad(factory.make_keypad()),
-    power(factory.make_power()),
-    speaker(factory.make_speaker()),
-    event_looper(factory.make_event_looper()),
-    cpu(memory, *display, *keypad, *speaker),
-    cfg(cfg) {
+Chip8::Chip8(int instructions_per_second) :
+    instructions_per_second(instructions_per_second) {
 
 }
 
-bool Chip8::load(const std::string &filename) {
-    std::ifstream ifs(filename);
+
+bool Chip8::load(const std::string &rom_) {
+    rom = rom_;
+    std::ifstream ifs(rom);
     if (ifs) {
         size_t cursor = CHIP8_MEMORY_BEGIN;
         while (ifs)
-            memory[cursor++] = ifs.get();
-        DBG() << memory << std::endl;
+            (*memory)[cursor++] = ifs.get();
+        DEBUG(2) << *memory << std::endl;
         return true;
     }
     return false;
+}
+
+void Chip8::reset() {
+    DEBUG(1) << "======= RESET ========" << std::endl;
+    memory->reset();
+    display->clear();
+    cpu->reset();
+    load(rom);
+    DEBUG(2) << *memory << std::endl;
+    DEBUG(2) << *cpu << std::endl;
 }
 
 void Chip8::run() {
@@ -45,16 +51,15 @@ void Chip8::run() {
     };
 
     Scheduler scheduler {
-        Scheduler::Task(std::chrono::nanoseconds(1000000000L / CHIP8_TIMERS_TICKS_PER_SECOND), timers_task, &cpu),
-        Scheduler::Task(std::chrono::nanoseconds(1000000000L / cfg.instructions_per_seconds), cpu_task, &cpu),
+        Scheduler::Task(std::chrono::nanoseconds(1000000000L / CHIP8_TIMERS_TICKS_PER_SECOND), timers_task, &(*cpu)),
+        Scheduler::Task(std::chrono::nanoseconds(1000000000L / instructions_per_second), cpu_task, &(*cpu)),
         Scheduler::Task(std::chrono::nanoseconds(1000000000L / CHIP8_DISPLAY_FPS), display_task, &(*display)),
     };
 
     scheduler.start();
 
-    while (power->on()) {
+    while (!shutdown_flag && !reset_flag) {
         scheduler.execute_next();
         event_looper->poll();
     }
 }
-

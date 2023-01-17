@@ -17,7 +17,7 @@ Scheduler::ScheduledTask::ScheduledTask(const Scheduler::Task &task) :
 
 }
 
-std::chrono::time_point<std::chrono::system_clock> Scheduler::ScheduledTask::next_execution_time() const {
+std::chrono::system_clock::time_point Scheduler::ScheduledTask::next_execution_time() const {
     return last_execution_time + period;
 }
 

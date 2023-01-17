@@ -25,9 +25,9 @@ private:
     struct ScheduledTask : public Task {
         explicit ScheduledTask(const Task &task);
 
-        std::chrono::time_point<std::chrono::system_clock> last_execution_time;
+        std::chrono::system_clock::time_point last_execution_time;
 
-        [[nodiscard]] std::chrono::time_point<std::chrono::system_clock> next_execution_time() const;
+        [[nodiscard]] std::chrono::system_clock::time_point next_execution_time() const;
     };
 
     std::vector<ScheduledTask> tasks;
