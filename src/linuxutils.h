@@ -1,3 +1,5 @@
+#ifdef __unix__
+
 #ifndef LINUXUTILS_H
 #define LINUXUTILS_H
 
@@ -5,3 +7,5 @@
 int open_keyboard();
 
 #endif // LINUXUTILS_H
+
+#endif // __unix__

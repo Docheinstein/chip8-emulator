@@ -2,6 +2,7 @@
 #include "debug.h"
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 CPU::CPU(Memory &memory, Display &display, Keypad &keypad, Speaker &speaker) :
         memory(memory),

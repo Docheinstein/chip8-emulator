@@ -3,7 +3,7 @@
 #include "glkeypad.h"
 #include "debug.h"
 #include "flags.h"
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 
 /*
  *     CHIP-8             Keyboard

@@ -1,15 +1,12 @@
 #include "chip8builder.h"
-#include "gl/gleventlooper.h"
 #include "gl/gldisplay.h"
 #include "gl/glkeypad.h"
 #include "nc/ncwindow.h"
 #include "nc/ncdisplay.h"
 #include "nc/nckeypad.h"
-#include "nc/nceventlooper.h"
 #include "soloud/soloudspeaker.h"
 #include "dummy/dummyspeaker.h"
 #include "dummy/dummydisplay.h"
-#include "dummy/dummyeventlooper.h"
 #include "dummy/dummykeypad.h"
 
 constexpr int USE_DEFAULT = -1;
@@ -61,7 +58,6 @@ Chip8 Chip8Builder::Chip8Builder::build() const {
         case CoreType::Dummy:
             chip8.display = std::make_unique<DummyDisplay>();
             chip8.keypad = std::make_unique<DummyKeypad>();
-            chip8.event_looper = std::make_unique<DummyEventLooper>();
             break;
 #ifdef OPENGL_ENABLED
         case CoreType::OpenGL: {
@@ -72,7 +68,6 @@ Chip8 Chip8Builder::Chip8Builder::build() const {
                                                     CHIP8_DISPLAY_HEIGHT * vscaling, "Chip8");
             chip8.display = std::make_unique<GlDisplay>(glwin, hscaling, vscaling);
             chip8.keypad = std::make_unique<GlKeypad>(glwin);
-            chip8.event_looper = std::make_unique<GlEventLooper>(glwin);
             break;
         }
 #endif
@@ -83,7 +78,6 @@ Chip8 Chip8Builder::Chip8Builder::build() const {
             auto ncwin = std::make_shared<NcWindow>();
             chip8.display = std::make_unique<NcDisplay>(ncwin, hscaling, vscaling, true);
             chip8.keypad = std::make_unique<NcKeypad>(ncwin);
-            chip8.event_looper = std::make_unique<NcEventLooper>(ncwin);
             break;
         }
 #endif

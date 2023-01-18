@@ -58,7 +58,7 @@ private:
 
     std::random_device random_device;
     std::default_random_engine random_engine;
-    std::uniform_int_distribution<uint8_t> random_uint8_generator;
+    std::uniform_int_distribution<int> random_uint8_generator;
 
     struct PendingLdk {
         explicit PendingLdk(Register8 &reg);

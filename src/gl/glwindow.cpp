@@ -1,9 +1,8 @@
 #ifdef OPENGL_ENABLED
 
-#include <iostream>
 #include "glwindow.h"
 #include "GLFW/glfw3.h"
-
+#include <stdexcept>
 
 GlWindow::GlWindow(int width, int height, const char *name) {
     glfwInit();
@@ -17,8 +16,7 @@ GlWindow::GlWindow(int width, int height, const char *name) {
 
     glfw_window = glfwCreateWindow(W, H, name, nullptr, nullptr);
     if (!glfw_window) {
-        glfwTerminate();
-        return;
+        throw std::runtime_error("glfwCreateWindow failed");
     }
 
     glfwMakeContextCurrent(glfw_window);

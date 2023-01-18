@@ -8,8 +8,8 @@ Memory::Memory() {
 }
 
 void Memory::reset() {
-    int i = CHIP8_MEMORY_BEGIN;
     std::fill_n(memory, sizeof(memory) / sizeof(memory[0]), 0);
+    int i = 0;
     memory[i++] = 0xF0; memory[i++] = 0x90; memory[i++] = 0x90; memory[i++] = 0x90; memory[i++] = 0xF0; // 0
     memory[i++] = 0x20; memory[i++] = 0x60; memory[i++] = 0x20; memory[i++] = 0x20; memory[i++] = 0x70; // 1
     memory[i++] = 0xF0; memory[i++] = 0x10; memory[i++] = 0xF0; memory[i++] = 0x80; memory[i++] = 0xF0; // 2

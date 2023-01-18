@@ -1,20 +1,10 @@
 #include <iostream>
-#include <argp.h>
-#include <cstring>
+#include "argparse.h"
 #include "chip8builder.h"
 #include "flags.h"
 
 constexpr int DEFAULT_INT_OPTION = -1;
 
-static const char *argp_args_doc = "ROM";
-static const char *argp_doc = "chip8";
-
-enum chip8_option {
-    OPTION_VIDEO = 'v',
-    OPTION_FREQUENCY = 'f',
-    OPTION_SCALING = 's',
-    OPTION_NO_SOUND = 'm'
-};
 
 #if defined(OPENGL_ENABLED) and defined(CURSES_ENABLED)
 #define VIDEO_MODES "'opengl', 'curses', 'dummy'"
@@ -26,71 +16,55 @@ enum chip8_option {
 #define VIDEO_MODES "'dummy'"
 #endif
 
-static struct argp_option argp_options[] = {
-  { "video", OPTION_VIDEO, "VIDEO", 0, "Set video mode (" VIDEO_MODES ")" },
-  { "frequency", OPTION_FREQUENCY, "FREQ", 0, "CPU instructions per seconds"},
-  { "scaling", OPTION_SCALING, "SCALING", 0, "Video scaling factor" },
-  { "no-sound", OPTION_NO_SOUND, nullptr, 0, "Disable sound" },
-  { nullptr }
-};
 
 struct chip8_arguments {
     explicit chip8_arguments() :
-        rom(nullptr),
         instructions_per_seconds(DEFAULT_INT_OPTION),
         scaling(DEFAULT_INT_OPTION),
-        video_mode(nullptr),
         no_sound() {
-
     }
 
-    const char *rom;
+    std::string rom;
     int instructions_per_seconds;
     int scaling;
-    const char *video_mode;
+    std::string video_mode;
     bool no_sound;
 };
 
-static error_t parse_option(int key, char *arg, struct argp_state *state) {
-    auto args = (chip8_arguments *) state->input;
-
-    switch (key) {
-    case OPTION_VIDEO:
-        args->video_mode = arg;
-        break;
-    case OPTION_FREQUENCY:
-        args->instructions_per_seconds = std::stoi(arg);
-        break;
-    case OPTION_SCALING:
-        args->scaling = std::stoi(arg);
-        break;
-    case OPTION_NO_SOUND:
-        args->no_sound = true;
-        break;
-    case ARGP_KEY_ARG:
-        switch (state->arg_num) {
-        case 0:
-            args->rom = arg;
-            break;
-        default:
-            argp_usage(state);
-        }
-        break;
-   case ARGP_KEY_END:
-        if (state->arg_num < 1)
-            argp_usage(state);
-        break;
-    default:
-        return ARGP_ERR_UNKNOWN;
-    }
-
-    return 0;
-}
 
 int main(int argc, char *argv[]) {
-    static struct argp argp = { argp_options, parse_option, argp_args_doc, argp_doc };
     chip8_arguments args;
-    argp_parse(&argp, argc, argv, 0, nullptr, &args);
+
+    auto parser = argumentum::argument_parser();
+    auto params = parser.params();
+    params
+        .add_parameter(args.rom, "rom")
+        .help("ROM");
+    params
+        .add_parameter(args.instructions_per_seconds, "-i", "--ips")
+        .nargs(1)
+        .default_value(DEFAULT_INT_OPTION)
+        .help("CPU instructions per seconds");
+    params
+        .add_parameter(args.scaling, "-s", "--scaling")
+        .nargs(1)
+        .default_value(DEFAULT_INT_OPTION)
+        .help("Video scaling factor");
+    params
+        .add_parameter(args.video_mode, "-v", "--video")
+        .nargs(1)
+        .default_value("")
+        .help("Set video mode (" VIDEO_MODES ")");
+    params
+        .add_parameter(args.no_sound, "-m", "--no-sound")
+        .nargs(0)
+        .default_value(false)
+        .help("Disable sound");
+    params
+        .add_default_help_option();
+
+    if (!parser.parse_args(argc, argv, 1))
+        return 1;
 
 #ifndef SOLOUD_ENABLED
     std::cerr << "WARNING: sound disabled" << std::endl;
@@ -101,12 +75,12 @@ int main(int argc, char *argv[]) {
     Chip8Builder::AudioType audio = Chip8Builder::AudioType::Dummy;
 
 #if defined(OPENGL_ENABLED) && defined(CURSES_ENABLED)
-    if (args.video_mode) {
-        if (strcmp(args.video_mode, "opengl") == 0)
+    if (!args.video_mode.empty()) {
+        if (args.video_mode == "opengl")
             core = Chip8Builder::CoreType::OpenGL;
-        else if (strcmp(args.video_mode, "curses") == 0)
+        else if (args.video_mode == "curses")
             core = Chip8Builder::CoreType::Curses;
-        else if (strcmp(args.video_mode, "dummy") == 0)
+        else if (args.video_mode == "dummy")
             core = Chip8Builder::CoreType::Dummy;
         else {
             std::cerr << "ERROR: unknown video mode '" << args.video_mode << "'" << std::endl;
@@ -115,10 +89,10 @@ int main(int argc, char *argv[]) {
     } else
         core = Chip8Builder::CoreType::OpenGL;
 #elif defined(OPENGL_ENABLED)
-    if (args.video_mode) {
-        if (strcmp(args.video_mode, "opengl") == 0)
+    if (!args.video_mode.empty()) {
+        if (args.video_mode == "opengl")
             core = Chip8Builder::CoreType::OpenGL;
-        else if (strcmp(args.video_mode, "dummy") == 0)
+        else if (args.video_mode == "dummy")
             core = Chip8Builder::CoreType::Dummy;
         else {
             std::cerr << "ERROR: unknown video mode '" << args.video_mode << "'" << std::endl;
@@ -127,10 +101,10 @@ int main(int argc, char *argv[]) {
     } else
         core = Chip8Builder::CoreType::OpenGL;
 #elif defined(CURSES_ENABLED)
-    if (args.video_mode) {
-        if (strcmp(args.video_mode, "curses") == 0)
+    if (!args.video_mode.empty()) {
+        if (args.video_mode == "curses")
             core = Chip8Builder::CoreType::Curses;
-        else if (strcmp(args.video_mode, "dummy") == 0)
+        else if (args.video_mode == "dummy")
             core = Chip8Builder::CoreType::Dummy;
         else {
             std::cerr << "ERROR: unknown video mode '" << args.video_mode << "'" << std::endl;

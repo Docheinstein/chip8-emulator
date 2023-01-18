@@ -5,7 +5,6 @@
 #include <memory>
 #include "cpu.h"
 #include "speaker.h"
-#include "eventlooper.h"
 
 class Chip8 {
 public:
@@ -25,7 +24,6 @@ private:
     std::unique_ptr<Display> display;
     std::unique_ptr<Keypad> keypad;
     std::unique_ptr<Speaker> speaker;
-    std::unique_ptr<EventLooper> event_looper;
 
     int instructions_per_second;
 };

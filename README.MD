@@ -6,10 +6,11 @@ written in C++20.
 ### Features
 - [x] Graphical mode (OpenGL)
 - [x] Terminal mode (Ncurses)
-- [x] Sound (SoLoud + ALSA)
+- [x] Sound (SoLoud + miniaudio)
 - [x] Customizable CPU's instructions per second
 - [x] Customizable scaling
 - [x] All tests passed (`programs/test-suite.ch8`)
+- [x] Cross platform: tested on Linux and Windows
 
 ![brix](images/brix.png)
 ![brix](images/tetris.png)
@@ -25,14 +26,18 @@ make
 ### Usage
 
 ```
-USAGE
-    chip8 [OPTION...] ROM
+usage:  [--ips IPS] [--scaling SCALING] [--video VIDEO] 
+        [--no-sound] [--help] rom
 
-OPTIONS
-  -f, --frequency=FREQ       CPU instructions per seconds (default is 700)
-  -m, --no-sound             Disable sound
-  -s, --scaling=SCALING      Video scaling factor (default is 15)
-  -v, --video=VIDEO          Set video mode ('opengl', 'curses', 'dummy')
+positional arguments:
+  rom                   ROM
+
+optional arguments:
+  -i, --ips IPS         CPU instructions per seconds
+  -s, --scaling SCALING Video scaling factor
+  -v, --video VIDEO     Set video mode ('opengl', 'curses', 'dummy')
+  -m, --no-sound        Disable sound
+  -h, --help            Display this help message and exit.
 ```
 
 Examples:
@@ -42,7 +47,7 @@ Run Brix
 chip8 games/brix.ch8
 ```
 
-Run Tetris in terminal
+Run Tetris in terminal (Linux)
 ```
 chip8 games/brix.ch8 -v curses
 ```

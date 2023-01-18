@@ -17,7 +17,7 @@ Scheduler::ScheduledTask::ScheduledTask(const Scheduler::Task &task) :
 
 }
 
-std::chrono::system_clock::time_point Scheduler::ScheduledTask::next_execution_time() const {
+std::chrono::high_resolution_clock::time_point Scheduler::ScheduledTask::next_execution_time() const {
     return last_execution_time + period;
 }
 
@@ -28,7 +28,7 @@ Scheduler::Scheduler(std::initializer_list<Task> tt) {
 
 void Scheduler::start() {
     for (auto &t : tasks)
-        t.last_execution_time = std::chrono::system_clock::now();
+        t.last_execution_time = std::chrono::high_resolution_clock::now();
 }
 
 void Scheduler::execute_next() {
@@ -40,8 +40,9 @@ void Scheduler::execute_next() {
     }
 
     if (nearest_task) {
-        std::this_thread::sleep_until(nearest_task->next_execution_time());
-        nearest_task->last_execution_time = std::chrono::system_clock::now();
+        auto wait_until = nearest_task->next_execution_time();
+        while (std::chrono::high_resolution_clock::now() < wait_until); // busy wait
+        nearest_task->last_execution_time = std::chrono::high_resolution_clock::now();
         (*nearest_task)();
     }
 }

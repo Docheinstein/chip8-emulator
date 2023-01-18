@@ -1,8 +1,9 @@
 #ifdef OPENGL_ENABLED
 
-#include <GLFW/glfw3.h>
 #include "gldisplay.h"
+#include "GLFW/glfw3.h"
 #include "constants.h"
+#include "flags.h"
 
 GlDisplay::GlDisplay(const std::shared_ptr<GlWindow> &window, int horizontal_scaling, int vertical_scaling) :
     window(window), horizontal_scaling(horizontal_scaling), vertical_scaling(vertical_scaling) {
@@ -41,5 +42,10 @@ void GlDisplay::refresh() {
     glDisable(GL_SCISSOR_TEST);
 
     glfwSwapBuffers(window->window());
+
+    glfwPollEvents();
+    if (glfwWindowShouldClose(window->window()))
+        shutdown_flag = true;
+
 }
 #endif // OPENGL_ENABLED

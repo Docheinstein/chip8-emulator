@@ -1,3 +1,5 @@
+#ifdef __unix__
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <iostream>
@@ -52,3 +54,5 @@ int open_keyboard() {
 
     return open(dev_input_event.c_str(), O_RDONLY);
 }
+
+#endif

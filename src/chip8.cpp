@@ -10,7 +10,6 @@ Chip8::Chip8(int instructions_per_second) :
 
 }
 
-
 bool Chip8::load(const std::string &rom_) {
     rom = rom_;
     std::ifstream ifs(rom);
@@ -60,6 +59,5 @@ void Chip8::run() {
 
     while (!shutdown_flag && !reset_flag) {
         scheduler.execute_next();
-        event_looper->poll();
     }
 }
